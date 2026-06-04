@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jangan Dibuka...</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Creepster&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0a0a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: 'Creepster', cursive;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    #start-screen {
+      text-align: center;
+      color: #cc0000;
+      z-index: 10;
+      animation: breathe 2s ease-in-out infinite;
+    }
+
+    #start-screen h1 {
+      font-size: 3rem;
+      text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000;
+      margin-bottom: 1rem;
+      letter-spacing: 4px;
+    }
+
+    #start-screen p {
+      font-size: 1.2rem;
+      color: #888;
+      animation: flicker 1.5s infinite;
+    }
+
+    #start-btn {
+      margin-top: 2rem;
+      padding: 14px 40px;
+      font-size: 1.3rem;
+      font-family: 'Creepster', cursive;
+      background: #1a0000;
+      color: #ff2200;
+      border: 2px solid #ff2200;
+      border-radius: 4px;
+      cursor: pointer;
+      letter-spacing: 2px;
+      box-shadow: 0 0 20px #ff0000aa;
+      transition: all 0.2s;
+    }
+
+    #start-btn:hover {
+      background: #ff2200;
+      color: #000;
+      box-shadow: 0 0 40px #ff0000;
+    }
+
+    /* Jumpscare overlay */
+    #jumpscare {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: #000;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    #jumpscare.active {
+      display: flex;
+    }
+
+    #scary-img {
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      position: absolute;
+      top: 0; left: 0;
+      filter: contrast(1.4) saturate(0.2) brightness(1.1);
+      animation: shake 0.05s infinite, zoomIn 0.2s ease-out forwards;
+    }
+
+    /* Flash overlay */
+    #flash {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: white;
+      z-index: 200;
+      pointer-events: none;
+    }
+
+    #flash.active {
+      display: block;
+      animation: flashBlink 0.08s step-start infinite;
+    }
+
+    /* Red vignette on jumpscare */
+    #vignette {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 150;
+      background: radial-gradient(ellipse at center, transparent 30%, #ff000066 100%);
+      pointer-events: none;
+      animation: vigPulse 0.1s step-start infinite;
+    }
+
+    #vignette.active { display: block; }
+
+    /* Glitch text on jumpscare */
+    #scare-text {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 300;
+      font-family: 'Creepster', cursive;
+      font-size: clamp(4rem, 12vw, 9rem);
+      color: #ff0000;
+      text-shadow: 4px 0 #00ffff, -4px 0 #ff00ff, 0 0 30px #ff0000;
+      letter-spacing: 6px;
+      white-space: nowrap;
+      animation: glitchText 0.08s step-start infinite;
+      pointer-events: none;
+    }
+
+    #scare-text.active { display: block; }
+
+    /* ====== KEYFRAMES ====== */
+
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50%       { transform: scale(1.04); opacity: 0.85; }
+    }
+
+    @keyframes flicker {
+      0%, 95%, 100% { opacity: 1; }
+      96%           { opacity: 0.1; }
+      98%           { opacity: 0.6; }
+    }
+
+    @keyframes shake {
+      0%   { transform: translate(0,0) rotate(0deg); }
+      20%  { transform: translate(-8px, 5px) rotate(-1deg); }
+      40%  { transform: translate(8px, -5px) rotate(1deg); }
+      60%  { transform: translate(-5px, 8px) rotate(-0.5deg); }
+      80%  { transform: translate(6px, -3px) rotate(0.8deg); }
+      100% { transform: translate(-3px, 4px) rotate(-0.3deg); }
+    }
+
+    @keyframes zoomIn {
+      from { transform: scale(0.6); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+
+    @keyframes flashBlink {
+      0%   { opacity: 1; }
+      50%  { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes vigPulse {
+      0%   { opacity: 1; }
+      50%  { opacity: 0.3; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes glitchText {
+      0%   { text-shadow: 4px 0 #00ffff, -4px 0 #ff00ff, 0 0 30px #ff0000; transform: translate(-50%,-50%) skewX(0deg); }
+      25%  { text-shadow: -4px 0 #00ffff, 4px 0 #ff00ff, 0 0 50px #ff0000; transform: translate(-52%,-50%) skewX(3deg); }
+      50%  { text-shadow: 6px 2px #ff0000, -6px -2px #00ffff, 0 0 20px #fff; transform: translate(-50%,-52%) skewX(-2deg); }
+      75%  { text-shadow: -2px 4px #ff00ff, 2px -4px #00ffff, 0 0 40px #ff0000; transform: translate(-48%,-50%) skewX(1deg); }
+      100% { text-shadow: 4px 0 #00ffff, -4px 0 #ff00ff, 0 0 30px #ff0000; transform: translate(-50%,-50%) skewX(0deg); }
+    }
+
+    /* Restart button */
+    #restart-btn {
+      display: none;
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 400;
+      padding: 10px 30px;
+      font-family: 'Creepster', cursive;
+      font-size: 1.1rem;
+      background: #000;
+      color: #888;
+      border: 1px solid #444;
+      border-radius: 4px;
+      cursor: pointer;
+      letter-spacing: 2px;
+    }
+
+    #restart-btn:hover { color: #fff; border-color: #fff; }
+  </style>
+</head>
+<body>
+
+  <!-- START SCREEN -->
+  <div id="start-screen">
+    <h1>⚠ JANGAN BUKA ⚠</h1>
+    <p>Pastikan volume-mu kencang...</p>
+    <br>
+    <button id="start-btn" onclick="startJumpscare()">KLIK SINI ▶</button>
+  </div>
+
+  <!-- JUMPSCARE LAYER -->
+  <div id="jumpscare">
+    <!-- Scary image dari sumber bebas lisensi -->
+    <img id="scary-img"
+      src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat_03.jpg/1200px-Cat_03.jpg"
+      alt=""
+      onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%221920%22 height=%221080%22><rect fill=%22%23000%22 width=%221920%22 height=%221080%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23ff0000%22 font-size=%22200%22>👻</text></svg>'"
+    />
+  </div>
+
+  <!-- Flash & Vignette overlays -->
+  <div id="flash"></div>
+  <div id="vignette"></div>
+  <div id="scare-text" id="scare-text">AWAS!!!</div>
+  <button id="restart-btn" onclick="location.reload()">↺ ULANGI</button>
+
+  <script>
+    // Replace scary image with a truly creepy free image
+    document.getElementById('scary-img').src =
+      'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Gatto_europeo4.jpg/1280px-Gatto_europeo4.jpg';
+
+    // ---- SCREAM SYNTHESIZER via Web Audio API ----
+    function playScream() {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+      function makeScreamLayer(freq, detune, gainVal, duration) {
+        const osc  = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const dist = ctx.createWaveShaper();
+
+        // Distortion curve
+        const curve = new Float32Array(256);
+        for (let i = 0; i < 256; i++) {
+          const x = (i * 2) / 256 - 1;
+          curve[i] = (Math.PI + 400) * x / (Math.PI + 400 * Math.abs(x));
+        }
+        dist.curve = curve;
+
+        osc.connect(dist);
+        dist.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.type    = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.8, ctx.currentTime + 0.1);
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.5, ctx.currentTime + duration);
+        osc.detune.setValueAtTime(detune, ctx.currentTime);
+
+        gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, ctx.currentTime + duration);
+
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + duration);
+      }
+
+      // Noise burst (white noise) = creepiest part
+      function makeNoise(gainVal, duration) {
+        const bufSize = ctx.sampleRate * duration;
+        const buf     = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+        const data    = buf.getChannelData(0);
+        for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+
+        const src  = ctx.createBufferSource();
+        const gain = ctx.createGain();
+        const filt = ctx.createBiquadFilter();
+
+        src.buffer = buf;
+        filt.type  = 'bandpass';
+        filt.frequency.value = 1200;
+        filt.Q.value         = 0.5;
+
+        src.connect(filt);
+        filt.connect(gain);
+        gain.connect(ctx.destination);
+
+        gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, ctx.currentTime + duration);
+
+        src.start(ctx.currentTime);
+      }
+
+      // BLAST — multiple layers
+      makeScreamLayer(220,  0,   1.5, 3.0);
+      makeScreamLayer(440,  25,  1.2, 2.8);
+      makeScreamLayer(880, -20,  0.9, 2.5);
+      makeScreamLayer(110,  0,   1.8, 3.2);
+      makeNoise(2.0, 3.0);
+
+      // LFO tremolo scream effect
+      const lfoOsc  = ctx.createOscillator();
+      const lfoGain = ctx.createGain();
+      const mainOsc = ctx.createOscillator();
+      const mainGain= ctx.createGain();
+
+      lfoOsc.frequency.value  = 14;
+      lfoGain.gain.value      = 180;
+      mainOsc.type            = 'sawtooth';
+      mainOsc.frequency.value = 600;
+
+      lfoOsc.connect(lfoGain);
+      lfoGain.connect(mainOsc.frequency);
+      mainOsc.connect(mainGain);
+      mainGain.connect(ctx.destination);
+      mainGain.gain.setValueAtTime(1.5, ctx.currentTime);
+      mainGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 3);
+
+      lfoOsc.start(); lfoOsc.stop(ctx.currentTime + 3);
+      mainOsc.start(); mainOsc.stop(ctx.currentTime + 3);
+    }
+
+    // ---- MAIN JUMPSCARE TRIGGER ----
+    function startJumpscare() {
+      document.getElementById('start-screen').style.display = 'none';
+
+      // Play scream FIRST (user gesture required for AudioContext)
+      playScream();
+
+      // Show jumpscare elements
+      document.getElementById('jumpscare').classList.add('active');
+      document.getElementById('flash').classList.add('active');
+      document.getElementById('vignette').classList.add('active');
+      document.getElementById('scare-text').classList.add('active');
+      document.getElementById('scare-text').textContent = 'AWAS!!!';
+
+      // Swap scary face texts randomly
+      const texts = ['AWAS!!!', 'HAHAHA', 'KETEMUU', '😱😱😱', 'ADA AKU!', 'JANGAN LARI'];
+      let ti = 0;
+      const textInterval = setInterval(() => {
+        document.getElementById('scare-text').textContent = texts[ti++ % texts.length];
+      }, 150);
+
+      // Change scary image rapidly (blink)
+      const imgs = [
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Gatto_europeo4.jpg/1280px-Gatto_europeo4.jpg',
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Above_Gotham.jpg/1280px-Above_Gotham.jpg',
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Camponotus_flavomarginatus_ant.jpg/1280px-Camponotus_flavomarginatus_ant.jpg',
+      ];
+
+      // Override with a creepy SVG face that flashes
+      const scaryFaces = [
+        `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080'><rect fill='%23000' width='1920' height='1080'/><text x='50%25' y='45%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff0000' font-size='500'>👻</text><text x='50%25' y='80%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff0000' font-size='80' font-family='monospace'>AWAS KAU!!!</text></svg>`,
+        `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080'><rect fill='%23ff0000' width='1920' height='1080'/><text x='50%25' y='45%25' dominant-baseline='middle' text-anchor='middle' fill='%23000' font-size='500'>💀</text><text x='50%25' y='80%25' dominant-baseline='middle' text-anchor='middle' fill='%23000' font-size='80' font-family='monospace'>HAHAHAHAHA</text></svg>`,
+        `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080'><rect fill='%23000' width='1920' height='1080'/><text x='50%25' y='45%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='500'>😱</text><text x='50%25' y='80%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='80' font-family='monospace'>LARI!!! LARI!!!</text></svg>`,
+        `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080'><rect fill='%23ff0000' width='1920' height='1080'/><text x='50%25' y='45%25' dominant-baseline='middle' text-anchor='middle' fill='%23000' font-size='500'>🕷️</text></svg>`,
+      ];
+
+      let fi = 0;
+      const imgInterval = setInterval(() => {
+        document.getElementById('scary-img').src = scaryFaces[fi++ % scaryFaces.length];
+      }, 120);
+
+      // Stop after 3.5 seconds
+      setTimeout(() => {
+        clearInterval(textInterval);
+        clearInterval(imgInterval);
+        document.getElementById('flash').classList.remove('active');
+        document.getElementById('vignette').classList.remove('active');
+        document.getElementById('scare-text').textContent = 'HAHAHA... KETIPU 😈';
+        document.getElementById('scary-img').src = scaryFaces[0];
+        document.getElementById('restart-btn').style.display = 'block';
+      }, 3500);
+    }
+  </script>
+</body>
+</html>
